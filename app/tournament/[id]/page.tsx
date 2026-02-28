@@ -134,14 +134,14 @@ export default function TournamentSetupPage() {
       }
       if (data.success) {
         // #region agent log
-        setDebugMsg("Success! Reloading...");
+        setDebugMsg(`Save OK: ${data.message} | debug=${JSON.stringify(data.debug)}`);
         // #endregion
         setShowManual(false);
         setSubmitting(false);
         await loadData();
       } else {
         // #region agent log
-        setDebugMsg(`API failure: ${data.message || JSON.stringify(data)}`);
+        setDebugMsg(`API failure: ${data.message} | debug=${JSON.stringify(data.debug)}`);
         setSubmitting(false);
         // #endregion
       }
