@@ -33,6 +33,10 @@ export default function TournamentSetupPage() {
     South: "",
     Midwest: "",
   });
+  // #region agent log
+  const [debugMsg, setDebugMsg] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
+  // #endregion
 
   useEffect(() => {
     loadData();
@@ -63,6 +67,10 @@ export default function TournamentSetupPage() {
   }
 
   async function submitManual() {
+    // #region agent log
+    setDebugMsg("submitManual called...");
+    setSubmitting(true);
+    // #endregion
     const parsed: Record<string, string[]> = {};
     for (const [r, text] of Object.entries(regions)) {
       const names = text
@@ -70,13 +78,17 @@ export default function TournamentSetupPage() {
         .map((s) => s.trim())
         .filter(Boolean);
       if (names.length === 0) {
-        alert(`Please fill in teams for ${r}`);
+        // #region agent log
+        setDebugMsg(`Empty region: ${r}`);
+        setSubmitting(false);
+        // #endregion
         return;
       }
       parsed[r] = names;
     }
     // #region agent log
-    fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual',message:'parsed regions before fetch',data:{regionKeys:Object.keys(parsed),counts:Object.fromEntries(Object.entries(parsed).map(([k,v])=>[k,v.length])),tournamentId:id},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+    const counts = Object.fromEntries(Object.entries(parsed).map(([k, v]) => [k, v.length]));
+    setDebugMsg(`Sending: ${JSON.stringify(counts)} to /api/tournament/${id}/setup`);
     // #endregion
     try {
       const resp = await fetch(`/api/tournament/${id}/setup`, {
@@ -84,31 +96,38 @@ export default function TournamentSetupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "manual", regions: parsed }),
       });
-      // #region agent log
-      fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual:resp',message:'API response received',data:{status:resp.status,ok:resp.ok,statusText:resp.statusText},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       const text = await resp.text();
       // #region agent log
-      fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual:body',message:'API response body',data:{body:text.slice(0,500)},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+      setDebugMsg(`Response ${resp.status}: ${text.slice(0, 300)}`);
       // #endregion
       let data;
       try {
         data = JSON.parse(text);
       } catch {
-        alert(`Server error (${resp.status}): ${text.slice(0, 200)}`);
+        // #region agent log
+        setDebugMsg(`NOT JSON - Status ${resp.status}: ${text.slice(0, 300)}`);
+        setSubmitting(false);
+        // #endregion
         return;
       }
       if (data.success) {
+        // #region agent log
+        setDebugMsg("Success! Reloading...");
+        // #endregion
         setShowManual(false);
+        setSubmitting(false);
         await loadData();
       } else {
-        alert("API returned failure: " + (data.message || JSON.stringify(data)));
+        // #region agent log
+        setDebugMsg(`API failure: ${data.message || JSON.stringify(data)}`);
+        setSubmitting(false);
+        // #endregion
       }
     } catch (err: unknown) {
       // #region agent log
-      fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual:catch',message:'fetch threw error',data:{error:String(err)},timestamp:Date.now(),hypothesisId:'E'})}).catch(()=>{});
+      setDebugMsg(`Fetch error: ${String(err)}`);
+      setSubmitting(false);
       // #endregion
-      alert("Request failed: " + String(err));
     }
   }
 
@@ -236,6 +255,13 @@ export default function TournamentSetupPage() {
                 </div>
               ))}
             </div>
+            {/* #region agent log */}
+            {debugMsg && (
+              <div className="mt-3 p-3 bg-yellow-900 border border-yellow-600 rounded text-yellow-200 text-xs font-mono break-all">
+                DEBUG: {debugMsg}
+              </div>
+            )}
+            {/* #endregion */}
             <div className="flex justify-end gap-3 mt-4">
               <button
                 onClick={() => setShowManual(false)}
@@ -245,9 +271,10 @@ export default function TournamentSetupPage() {
               </button>
               <button
                 onClick={submitManual}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700"
+                disabled={submitting}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
               >
-                Save Teams
+                {submitting ? "Saving..." : "Save Teams"}
               </button>
             </div>
           </div>
