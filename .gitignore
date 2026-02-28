@@ -1,0 +1,17 @@
+node_modules/
+.next/
+.env.local
+.env
+*.db
+__pycache__/
+instance/
+
+# Old Flask files (replaced by Next.js)
+app.py
+database.py
+espn_api.py
+models.py
+scores.py
+requirements.txt
+static/
+templates/

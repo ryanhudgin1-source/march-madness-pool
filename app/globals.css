@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #0d1117;
+  color: #f0f6fc;
+}
+
+/* Draft team cards */
+.team-card {
+  @apply flex items-center gap-2 px-3 py-1.5 rounded-md border-l-4 border-transparent
+         bg-bg-card text-sm cursor-pointer transition-all duration-150;
+}
+.team-card:hover:not(.drafted) {
+  @apply bg-bg-hover translate-x-0.5;
+}
+.team-card.drafted {
+  @apply opacity-40 cursor-default line-through;
+}
+
+/* Bracket */
+.bracket-game {
+  @apply bg-bg-card border border-border rounded-lg p-1 mb-1;
+}
+.bracket-game.complete {
+  @apply border-green-700;
+}
+.bracket-team {
+  @apply flex items-center gap-1.5 px-2 py-1 rounded text-sm transition-colors;
+}
+.bracket-team:hover:not(.tbd) {
+  @apply bg-bg-hover;
+}
+.bracket-team.winner {
+  @apply bg-green-900/30;
+}
+.bracket-team.loser {
+  @apply opacity-40 line-through;
+}
+.bracket-team.tbd {
+  @apply opacity-30 italic;
+}
+
+/* Matchup cards */
+.matchup-card {
+  @apply bg-bg-card border border-border rounded-xl p-3 mb-2;
+}
+.matchup-team-slot {
+  @apply flex-1 flex items-center gap-2 px-3 py-2 bg-bg rounded-lg;
+}
+
+/* Owner color stripe */
+.owner-stripe {
+  @apply w-1 h-7 rounded-sm shrink-0;
+}
+
+/* Team roster item */
+.roster-item {
+  @apply flex justify-between items-center px-2 py-1.5 border-b border-border/50 text-sm;
+}
+.roster-item.eliminated {
+  @apply opacity-40 line-through;
+}
