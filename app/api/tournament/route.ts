@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTournaments, createTournament } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const tournaments = await getTournaments();
-  return NextResponse.json(tournaments);
+  return NextResponse.json(tournaments, {
+    headers: { "Cache-Control": "no-store, max-age=0" },
+  });
 }
 
 export async function POST(req: NextRequest) {

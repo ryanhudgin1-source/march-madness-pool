@@ -48,7 +48,7 @@ export default function TournamentSetupPage() {
     addDebug("loadData: fetching...");
     // #endregion
     try {
-      const resp = await fetch(`/api/tournament/${id}/data`);
+      const resp = await fetch(`/api/tournament/${id}/data?t=${Date.now()}`);
       const text = await resp.text();
       // #region agent log
       addDebug(`loadData: status=${resp.status}, bodyLen=${text.length}, preview=${text.slice(0, 200)}`);
