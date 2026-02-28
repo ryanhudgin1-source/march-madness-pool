@@ -34,7 +34,8 @@ export default function TournamentSetupPage() {
     Midwest: "",
   });
   // #region agent log
-  const [debugMsg, setDebugMsg] = useState<string>("");
+  const [debugMsgs, setDebugMsgs] = useState<string[]>([]);
+  const addDebug = (msg: string) => setDebugMsgs(prev => [...prev.slice(-5), msg]);
   const [submitting, setSubmitting] = useState(false);
   // #endregion
 
@@ -44,30 +45,30 @@ export default function TournamentSetupPage() {
 
   async function loadData() {
     // #region agent log
-    setDebugMsg("loadData: fetching...");
+    addDebug("loadData: fetching...");
     // #endregion
     try {
       const resp = await fetch(`/api/tournament/${id}/data`);
       const text = await resp.text();
       // #region agent log
-      setDebugMsg(`loadData: status=${resp.status}, bodyLen=${text.length}, preview=${text.slice(0, 200)}`);
+      addDebug(`loadData: status=${resp.status}, bodyLen=${text.length}, preview=${text.slice(0, 200)}`);
       // #endregion
       let data;
       try { data = JSON.parse(text); } catch {
         // #region agent log
-        setDebugMsg(`loadData: NOT JSON - ${text.slice(0, 300)}`);
+        addDebug(`loadData: NOT JSON - ${text.slice(0, 300)}`);
         // #endregion
         return;
       }
       // #region agent log
-      setDebugMsg(`loadData: tournament=${!!data.tournament}, teams=${Array.isArray(data.teams) ? data.teams.length : 'missing'}, participants=${Array.isArray(data.participants) ? data.participants.length : 'missing'}, error=${data.error || 'none'}`);
+      addDebug(`loadData: tournament=${!!data.tournament}, teams=${Array.isArray(data.teams) ? data.teams.length : 'missing'}, participants=${Array.isArray(data.participants) ? data.participants.length : 'missing'}, error=${data.error || 'none'}`);
       // #endregion
       setTournament(data.tournament);
       setTeams(data.teams ?? []);
       setParticipants(data.participants ?? []);
     } catch (err) {
       // #region agent log
-      setDebugMsg(`loadData error: ${String(err)}`);
+      addDebug(`loadData error: ${String(err)}`);
       // #endregion
     }
   }
@@ -90,7 +91,7 @@ export default function TournamentSetupPage() {
 
   async function submitManual() {
     // #region agent log
-    setDebugMsg("submitManual called...");
+    addDebug("submitManual called...");
     setSubmitting(true);
     // #endregion
     const parsed: Record<string, string[]> = {};
@@ -101,7 +102,7 @@ export default function TournamentSetupPage() {
         .filter(Boolean);
       if (names.length === 0) {
         // #region agent log
-        setDebugMsg(`Empty region: ${r}`);
+        addDebug(`Empty region: ${r}`);
         setSubmitting(false);
         // #endregion
         return;
@@ -110,7 +111,7 @@ export default function TournamentSetupPage() {
     }
     // #region agent log
     const counts = Object.fromEntries(Object.entries(parsed).map(([k, v]) => [k, v.length]));
-    setDebugMsg(`Sending: ${JSON.stringify(counts)} to /api/tournament/${id}/setup`);
+    addDebug(`Sending: ${JSON.stringify(counts)} to /api/tournament/${id}/setup`);
     // #endregion
     try {
       const resp = await fetch(`/api/tournament/${id}/setup`, {
@@ -120,40 +121,40 @@ export default function TournamentSetupPage() {
       });
       const text = await resp.text();
       // #region agent log
-      setDebugMsg(`Response ${resp.status}: ${text.slice(0, 300)}`);
+      addDebug(`Response ${resp.status}: ${text.slice(0, 300)}`);
       // #endregion
       let data;
       try {
         data = JSON.parse(text);
       } catch {
         // #region agent log
-        setDebugMsg(`NOT JSON - Status ${resp.status}: ${text.slice(0, 300)}`);
+        addDebug(`NOT JSON - Status ${resp.status}: ${text.slice(0, 300)}`);
         setSubmitting(false);
         // #endregion
         return;
       }
       if (data.success) {
         // #region agent log
-        setDebugMsg(`Save OK: ${data.message} | debug=${JSON.stringify(data.debug)}`);
+        addDebug(`Save OK: ${data.message} | debug=${JSON.stringify(data.debug)}`);
         // #endregion
         setShowManual(false);
         setSubmitting(false);
         await loadData();
       } else {
         // #region agent log
-        setDebugMsg(`API failure: ${data.message} | debug=${JSON.stringify(data.debug)}`);
+        addDebug(`API failure: ${data.message} | debug=${JSON.stringify(data.debug)}`);
         setSubmitting(false);
         // #endregion
       }
     } catch (err: unknown) {
       // #region agent log
-      setDebugMsg(`Fetch error: ${String(err)}`);
+      addDebug(`Fetch error: ${String(err)}`);
       setSubmitting(false);
       // #endregion
     }
   }
 
-  if (!tournament) return <div><p className="text-fg-muted text-center">Loading...</p>{/* #region agent log */}{debugMsg && <div className="mt-4 mx-auto max-w-xl p-3 bg-yellow-900 border border-yellow-600 rounded text-yellow-200 text-xs font-mono break-all">DEBUG: {debugMsg}</div>}{/* #endregion */}</div>;
+  if (!tournament) return <div><p className="text-fg-muted text-center">Loading...</p>{/* #region agent log */}{debugMsgs.length > 0 && <div className="mt-4 mx-auto max-w-xl p-3 bg-yellow-900 border border-yellow-600 rounded text-yellow-200 text-xs font-mono break-all">{debugMsgs.map((m,i)=><div key={i}>DEBUG: {m}</div>)}</div>}{/* #endregion */}</div>;
 
   const regionGroups = teams.reduce<Record<string, TeamRow[]>>((acc, t) => {
     (acc[t.region] ??= []).push(t);
@@ -163,9 +164,9 @@ export default function TournamentSetupPage() {
   return (
     <div className="max-w-5xl mx-auto">
       {/* #region agent log */}
-      {debugMsg && (
+      {debugMsgs.length > 0 && (
         <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded text-yellow-200 text-xs font-mono break-all">
-          DEBUG: {debugMsg}
+          {debugMsgs.map((m, i) => <div key={i}>DEBUG: {m}</div>)}
         </div>
       )}
       {/* #endregion */}
@@ -285,9 +286,9 @@ export default function TournamentSetupPage() {
               ))}
             </div>
             {/* #region agent log */}
-            {debugMsg && (
+            {debugMsgs.length > 0 && (
               <div className="mt-3 p-3 bg-yellow-900 border border-yellow-600 rounded text-yellow-200 text-xs font-mono break-all">
-                DEBUG: {debugMsg}
+                {debugMsgs.map((m, i) => <div key={i}>DEBUG: {m}</div>)}
               </div>
             )}
             {/* #endregion */}
