@@ -43,11 +43,33 @@ export default function TournamentSetupPage() {
   }, [id]);
 
   async function loadData() {
-    const resp = await fetch(`/api/tournament/${id}/data`);
-    const data = await resp.json();
-    setTournament(data.tournament);
-    setTeams(data.teams ?? []);
-    setParticipants(data.participants ?? []);
+    // #region agent log
+    setDebugMsg("loadData: fetching...");
+    // #endregion
+    try {
+      const resp = await fetch(`/api/tournament/${id}/data`);
+      const text = await resp.text();
+      // #region agent log
+      setDebugMsg(`loadData: status=${resp.status}, bodyLen=${text.length}, preview=${text.slice(0, 200)}`);
+      // #endregion
+      let data;
+      try { data = JSON.parse(text); } catch {
+        // #region agent log
+        setDebugMsg(`loadData: NOT JSON - ${text.slice(0, 300)}`);
+        // #endregion
+        return;
+      }
+      // #region agent log
+      setDebugMsg(`loadData: tournament=${!!data.tournament}, teams=${Array.isArray(data.teams) ? data.teams.length : 'missing'}, participants=${Array.isArray(data.participants) ? data.participants.length : 'missing'}, error=${data.error || 'none'}`);
+      // #endregion
+      setTournament(data.tournament);
+      setTeams(data.teams ?? []);
+      setParticipants(data.participants ?? []);
+    } catch (err) {
+      // #region agent log
+      setDebugMsg(`loadData error: ${String(err)}`);
+      // #endregion
+    }
   }
 
   async function importESPN() {
@@ -131,7 +153,7 @@ export default function TournamentSetupPage() {
     }
   }
 
-  if (!tournament) return <p className="text-fg-muted text-center">Loading...</p>;
+  if (!tournament) return <div><p className="text-fg-muted text-center">Loading...</p>{/* #region agent log */}{debugMsg && <div className="mt-4 mx-auto max-w-xl p-3 bg-yellow-900 border border-yellow-600 rounded text-yellow-200 text-xs font-mono break-all">DEBUG: {debugMsg}</div>}{/* #endregion */}</div>;
 
   const regionGroups = teams.reduce<Record<string, TeamRow[]>>((acc, t) => {
     (acc[t.region] ??= []).push(t);
@@ -140,6 +162,13 @@ export default function TournamentSetupPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
+      {/* #region agent log */}
+      {debugMsg && (
+        <div className="mb-4 p-3 bg-yellow-900 border border-yellow-600 rounded text-yellow-200 text-xs font-mono break-all">
+          DEBUG: {debugMsg}
+        </div>
+      )}
+      {/* #endregion */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{tournament.name}</h1>
         <span className="text-xs px-2 py-1 rounded-full bg-yellow-700">
