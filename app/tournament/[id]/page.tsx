@@ -75,17 +75,40 @@ export default function TournamentSetupPage() {
       }
       parsed[r] = names;
     }
-    const resp = await fetch(`/api/tournament/${id}/setup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "manual", regions: parsed }),
-    });
-    const data = await resp.json();
-    if (data.success) {
-      setShowManual(false);
-      await loadData();
-    } else {
-      alert(data.message);
+    // #region agent log
+    fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual',message:'parsed regions before fetch',data:{regionKeys:Object.keys(parsed),counts:Object.fromEntries(Object.entries(parsed).map(([k,v])=>[k,v.length])),tournamentId:id},timestamp:Date.now(),hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    try {
+      const resp = await fetch(`/api/tournament/${id}/setup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "manual", regions: parsed }),
+      });
+      // #region agent log
+      fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual:resp',message:'API response received',data:{status:resp.status,ok:resp.ok,statusText:resp.statusText},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      const text = await resp.text();
+      // #region agent log
+      fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual:body',message:'API response body',data:{body:text.slice(0,500)},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        alert(`Server error (${resp.status}): ${text.slice(0, 200)}`);
+        return;
+      }
+      if (data.success) {
+        setShowManual(false);
+        await loadData();
+      } else {
+        alert("API returned failure: " + (data.message || JSON.stringify(data)));
+      }
+    } catch (err: unknown) {
+      // #region agent log
+      fetch('http://127.0.0.1:7553/ingest/b5d4496f-2f88-453a-aa06-863af0717a79',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'637319'},body:JSON.stringify({sessionId:'637319',location:'page.tsx:submitManual:catch',message:'fetch threw error',data:{error:String(err)},timestamp:Date.now(),hypothesisId:'E'})}).catch(()=>{});
+      // #endregion
+      alert("Request failed: " + String(err));
     }
   }
 
