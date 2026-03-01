@@ -10,13 +10,7 @@ interface Tournament {
   status: string;
 }
 
-const SLIDES = [
-  "https://images.unsplash.com/photo-1504450758481-7338bbe75c8e?w=1920&q=80",
-  "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1920&q=80",
-  "https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?w=1920&q=80",
-  "https://images.unsplash.com/photo-1519861531473-9200262188bf?w=1920&q=80",
-  "https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=1920&q=80",
-];
+const HERO_IMAGE = "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1920&q=80";
 
 export default function Home() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -61,15 +55,12 @@ export default function Home() {
 
   return (
     <>
-      {/* Slideshow background - covers the gradient from layout */}
-      <div className="slideshow-bg">
-        {SLIDES.map((url, i) => (
-          <div
-            key={i}
-            className="slide"
-            style={{ backgroundImage: `url(${url})` }}
-          />
-        ))}
+      {/* Static hero background */}
+      <div
+        className="fixed inset-0 z-[-1] bg-cover bg-center"
+        style={{ backgroundImage: `url(${HERO_IMAGE})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
       </div>
 
       {/* Override layout styles for home page */}
