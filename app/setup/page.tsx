@@ -42,37 +42,37 @@ export default function SetupPage() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold mb-6">New Tournament Setup</h1>
+      <h1 className="text-2xl font-bold mb-6 text-slate-800">New Tournament Setup</h1>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-bg-card border border-border rounded-lg p-6 space-y-4"
+        className="glass rounded-xl p-6 space-y-4"
       >
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-1 text-slate-700">
             Tournament Year
           </label>
           <input
             type="number"
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="w-full bg-bg border border-border rounded-lg px-3 py-2"
+            className="w-full rounded-lg px-3 py-2"
             min={2000}
             max={2099}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-medium mb-1 text-slate-700">
             Participant Names
           </label>
           <textarea
             value={names}
             onChange={(e) => setNames(e.target.value)}
-            className="w-full bg-bg border border-border rounded-lg px-3 py-2 h-28"
+            className="w-full rounded-lg px-3 py-2 h-28"
             placeholder="Enter names separated by commas&#10;e.g. Alice, Bob, Charlie, Diana, Eve, Frank, Grace, Hank"
           />
-          <p className="text-xs text-fg-muted mt-1">
+          <p className="text-xs text-slate-400 mt-1">
             Enter up to 8 names, separated by commas.
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function SetupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 py-2.5 rounded-lg font-medium"
+          className="w-full btn-primary py-2.5 disabled:opacity-50"
         >
           {loading ? "Creating..." : "Create Tournament"}
         </button>

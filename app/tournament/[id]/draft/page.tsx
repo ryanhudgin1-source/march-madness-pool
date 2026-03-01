@@ -109,7 +109,6 @@ export default function DraftPage() {
     return acc;
   }, {});
 
-  // Build draft board grid
   function getDraftBoard() {
     const board: (Pick | null)[][] = [];
     for (let r = 1; r <= totalRounds; r++) {
@@ -127,24 +126,24 @@ export default function DraftPage() {
     return board;
   }
 
-  if (loading) return <p className="text-fg-muted text-center">Loading...</p>;
+  if (loading) return <p className="text-slate-400 text-center">Loading...</p>;
 
   const board = getDraftBoard();
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h1 className="text-2xl font-bold">Snake Draft</h1>
+        <h1 className="text-2xl font-bold text-slate-800">Snake Draft</h1>
         <div className="flex gap-2">
           <button
             onClick={undoPick}
-            className="text-sm px-3 py-1 rounded border border-yellow-700 text-yellow-400 hover:bg-yellow-900/30"
+            className="text-sm px-3 py-1 rounded-lg border border-amber-400 text-amber-600 hover:bg-amber-50/60 transition-colors"
           >
             Undo
           </button>
           <Link
             href={`/tournament/${id}/dashboard`}
-            className="text-sm px-3 py-1 rounded border border-blue-700 text-blue-400 hover:bg-blue-900/30"
+            className="text-sm px-3 py-1 rounded-lg border border-indigo-400 text-indigo-600 hover:bg-indigo-50/60 transition-colors"
           >
             Dashboard
           </Link>
@@ -153,35 +152,32 @@ export default function DraftPage() {
 
       {/* Current drafter banner */}
       <div
-        className="rounded-lg py-2 px-4 mb-4 text-center text-lg"
+        className="glass rounded-xl py-2 px-4 mb-4 text-center text-lg"
         style={{
-          backgroundColor: draftComplete
-            ? "rgba(34,197,94,0.15)"
-            : `${drafter?.color ?? "#333"}22`,
-          borderLeft: `4px solid ${draftComplete ? "#22c55e" : drafter?.color ?? "#333"}`,
+          borderLeft: `4px solid ${draftComplete ? "#22c55e" : drafter?.color ?? "#94a3b8"}`,
         }}
       >
         {draftComplete ? (
-          <span className="text-green-400 font-bold">Draft Complete!</span>
+          <span className="text-emerald-600 font-bold">Draft Complete!</span>
         ) : (
-          <>
+          <span className="text-slate-700">
             <strong>Pick #{pickCount + 1}</strong> &mdash;{" "}
-            <span style={{ color: drafter?.color }}>
+            <span style={{ color: drafter?.color }} className="font-semibold">
               {drafter?.name}
             </span>{" "}
             is on the clock
-          </>
+          </span>
         )}
       </div>
 
       <div className="grid lg:grid-cols-5 gap-4">
         {/* Available Teams (3 cols) */}
-        <div className="lg:col-span-3 bg-bg-card border border-border rounded-lg p-3">
-          <h2 className="font-semibold mb-2">Available Teams</h2>
+        <div className="lg:col-span-3 glass rounded-xl p-3">
+          <h2 className="font-semibold mb-2 text-slate-700">Available Teams</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {Object.entries(regionGroups).map(([region, rTeams]) => (
               <div key={region}>
-                <h3 className="text-xs font-bold text-fg-muted uppercase text-center mb-1">
+                <h3 className="text-xs font-bold text-slate-400 uppercase text-center mb-1">
                   {region}
                 </h3>
                 {rTeams.map((t) => {
@@ -197,10 +193,10 @@ export default function DraftPage() {
                       }
                       onClick={() => !drafted && draftTeam(t.id)}
                     >
-                      <span className="w-6 h-6 rounded-full bg-bg flex items-center justify-center text-xs font-bold shrink-0">
+                      <span className="w-6 h-6 rounded-full bg-white/60 flex items-center justify-center text-xs font-bold shrink-0 text-slate-700">
                         {t.seed}
                       </span>
-                      <span className="truncate">{t.name}</span>
+                      <span className="truncate text-slate-700">{t.name}</span>
                     </div>
                   );
                 })}
@@ -211,19 +207,19 @@ export default function DraftPage() {
 
         {/* Draft Board + Pick Log (2 cols) */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="bg-bg-card border border-border rounded-lg">
-            <h2 className="font-semibold p-3 border-b border-border">
+          <div className="glass rounded-xl overflow-hidden">
+            <h2 className="font-semibold p-3 border-b border-white/30 text-slate-700">
               Draft Board
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr>
-                    <th className="p-1 text-center text-fg-muted">Rd</th>
+                    <th className="p-1 text-center text-slate-400">Rd</th>
                     {participants.map((p) => (
                       <th
                         key={p.id}
-                        className="p-1 text-center"
+                        className="p-1 text-center text-slate-700"
                         style={{ borderBottom: `3px solid ${p.color}` }}
                       >
                         {p.name}
@@ -234,17 +230,17 @@ export default function DraftPage() {
                 <tbody>
                   {board.map((row, ri) => (
                     <tr key={ri}>
-                      <td className="p-1 text-center text-fg-muted">
+                      <td className="p-1 text-center text-slate-400">
                         {ri + 1}
                       </td>
                       {row.map((cell, ci) => (
                         <td
                           key={ci}
-                          className="p-1 text-center"
+                          className="p-1 text-center text-slate-700"
                           style={
                             cell
                               ? {
-                                  backgroundColor: `${cell.participant_color}33`,
+                                  backgroundColor: `${cell.participant_color}22`,
                                 }
                               : undefined
                           }
@@ -266,18 +262,18 @@ export default function DraftPage() {
             </div>
           </div>
 
-          <div className="bg-bg-card border border-border rounded-lg">
-            <h2 className="font-semibold p-3 border-b border-border">
+          <div className="glass rounded-xl overflow-hidden">
+            <h2 className="font-semibold p-3 border-b border-white/30 text-slate-700">
               Pick Log
             </h2>
             <div className="p-2 max-h-72 overflow-y-auto">
               {[...picks].reverse().map((p) => (
                 <div
                   key={p.pick_number}
-                  className="py-1 px-2 border-b border-border/40 text-sm flex items-center gap-2"
+                  className="py-1 px-2 border-b border-black/5 text-sm flex items-center gap-2"
                 >
                   <span
-                    className="text-xs px-1.5 py-0.5 rounded"
+                    className="text-xs px-1.5 py-0.5 rounded text-white font-medium"
                     style={{ backgroundColor: p.participant_color }}
                   >
                     {p.pick_number}
@@ -285,12 +281,12 @@ export default function DraftPage() {
                   <strong style={{ color: p.participant_color }}>
                     {p.participant_name}
                   </strong>
-                  <span className="text-fg-muted">&rarr;</span>
-                  ({p.seed}) {p.team_name}
+                  <span className="text-slate-400">&rarr;</span>
+                  <span className="text-slate-700">({p.seed}) {p.team_name}</span>
                 </div>
               ))}
               {picks.length === 0 && (
-                <p className="text-fg-muted text-center text-sm">
+                <p className="text-slate-400 text-center text-sm">
                   No picks yet
                 </p>
               )}

@@ -15,9 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen">
-        <nav className="border-b border-border px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="font-bold text-lg flex items-center gap-2">
-            <span className="text-yellow-400">&#127942;</span>
+        <nav className="glass-strong sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="font-bold text-lg flex items-center gap-2 text-slate-800">
+            <span>&#127942;</span>
             March Madness Pool
           </Link>
         </nav>

@@ -5,9 +5,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        bg: { DEFAULT: "#0d1117", card: "#161b22", hover: "#2d333b" },
-        border: { DEFAULT: "#30363d" },
-        fg: { DEFAULT: "#f0f6fc", muted: "#8b949e" },
+        bg: { DEFAULT: "#f0f4f8", card: "rgba(255,255,255,0.55)", hover: "rgba(255,255,255,0.75)" },
+        border: { DEFAULT: "rgba(255,255,255,0.45)" },
+        fg: { DEFAULT: "#1e293b", muted: "#64748b" },
       },
     },
   },
