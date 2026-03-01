@@ -3,10 +3,54 @@
 @tailwind utilities;
 
 body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #fda085 100%);
-  background-attachment: fixed;
   color: #1e293b;
   min-height: 100vh;
+}
+
+/* Gradient background for inner pages (draft, dashboard, setup, etc.) */
+.bg-gradient-app {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #fda085 100%);
+  background-attachment: fixed;
+}
+
+/* ── Slideshow background ── */
+.slideshow-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+.slideshow-bg .slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  animation: slideFade 35s infinite;
+}
+.slideshow-bg .slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.15) 40%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+.slideshow-bg .slide:nth-child(1) { animation-delay: 0s; }
+.slideshow-bg .slide:nth-child(2) { animation-delay: 7s; }
+.slideshow-bg .slide:nth-child(3) { animation-delay: 14s; }
+.slideshow-bg .slide:nth-child(4) { animation-delay: 21s; }
+.slideshow-bg .slide:nth-child(5) { animation-delay: 28s; }
+
+@keyframes slideFade {
+  0%   { opacity: 0; }
+  3%   { opacity: 1; }
+  20%  { opacity: 1; }
+  23%  { opacity: 0; }
+  100% { opacity: 0; }
 }
 
 /* Glass card utility */
@@ -31,6 +75,15 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Glass on dark (for home page over photos) */
+.glass-dark {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 /* Draft team cards */
