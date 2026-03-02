@@ -8,14 +8,7 @@ body {
   background: #111;
 }
 
-/* Full-screen basketball hero background on every page */
-.bg-hero-court {
-  background:
-    linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.6) 100%),
-    url("https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1920&q=80") center/cover no-repeat;
-  background-attachment: fixed;
-  background-color: #111;
-}
+/* Fixed background layers rendered as divs in layout.tsx */
 
 /* Glass card utility — dark-themed for basketball background */
 .glass {
