@@ -2,10 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  background: #111;
+}
 body {
   color: #e2e8f0;
   min-height: 100vh;
-  background: #111;
+  background: transparent;
 }
 
 /* Fixed background layers rendered as divs in layout.tsx */

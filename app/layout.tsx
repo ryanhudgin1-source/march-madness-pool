@@ -19,13 +19,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen">
-        {/* Fixed background image — works on all devices including mobile */}
+        {/* Background image layer */}
         <div
           aria-hidden="true"
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: -2,
+            zIndex: 0,
             backgroundImage: `url(${HERO_IMAGE})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
@@ -38,18 +38,19 @@ export default function RootLayout({
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: -1,
+            zIndex: 1,
             background:
               "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.6) 100%)",
           }}
         />
 
-        <AdminProvider>
-          <NavBar />
-          <main className="max-w-7xl mx-auto px-4 py-6 relative z-0">
-            {children}
-          </main>
-        </AdminProvider>
+        {/* All content sits above the background */}
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <AdminProvider>
+            <NavBar />
+            <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+          </AdminProvider>
+        </div>
       </body>
     </html>
   );
