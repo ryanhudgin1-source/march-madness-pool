@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { makeDraftPick, undoDraftPick } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const denied = requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const { teamId } = await req.json();
     const result = await makeDraftPick(Number(params.id), Number(teamId));
@@ -16,9 +20,12 @@ export async function POST(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const denied = requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const teamId = await undoDraftPick(Number(params.id));
     return NextResponse.json({ success: true, teamId });

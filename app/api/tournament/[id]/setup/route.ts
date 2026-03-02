@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addTeamsManual, importTeamsFromData, getTournament, getTeamsWithOwners } from "@/lib/db";
+import { addTeamsManual, importTeamsFromData, getTournament } from "@/lib/db";
 import { fetchTournamentTeams } from "@/lib/espn";
+import { requireAdmin } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const denied = requireAdmin(req);
+  if (denied) return denied;
+
   const tournamentId = Number(params.id);
   const body = await req.json();
   const action: string = body.action;
-
-  // #region agent log
-  const debugInfo: Record<string, unknown> = { tournamentId, paramsId: params.id, action };
-  // #endregion
 
   try {
     if (action === "import-espn") {
@@ -36,32 +36,13 @@ export async function POST(
 
     if (action === "manual") {
       const regions: Record<string, string[]> = body.regions;
-      // #region agent log
-      debugInfo.regionKeys = Object.keys(regions);
-      debugInfo.regionCounts = Object.fromEntries(Object.entries(regions).map(([k, v]) => [k, v.length]));
-      // #endregion
       const count = await addTeamsManual(tournamentId, regions);
-      // #region agent log
-      debugInfo.gamesCreated = count;
-      const verifyTeams = await getTeamsWithOwners(tournamentId);
-      debugInfo.teamsAfterInsert = verifyTeams.length;
-      // #endregion
-      return NextResponse.json({
-        success: true,
-        message: `Added teams with ${count} first-round games`,
-        // #region agent log
-        debug: debugInfo,
-        // #endregion
-      });
+      return NextResponse.json({ success: true, message: `Added teams with ${count} first-round games` });
     }
 
     return NextResponse.json({ success: false, message: "Unknown action" }, { status: 400 });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Unknown error";
-    // #region agent log
-    debugInfo.error = msg;
-    debugInfo.stack = e instanceof Error ? e.stack : undefined;
-    // #endregion
-    return NextResponse.json({ success: false, message: msg, debug: debugInfo }, { status: 500 });
+    return NextResponse.json({ success: false, message: msg }, { status: 500 });
   }
 }

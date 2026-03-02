@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useAdmin } from "../../../admin-context";
 
 interface Team {
   id: number;
@@ -31,6 +32,7 @@ interface Pick {
 
 export default function DraftPage() {
   const { id } = useParams<{ id: string }>();
+  const { isAdmin, adminKey } = useAdmin();
   const [teams, setTeams] = useState<Team[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [picks, setPicks] = useState<Pick[]>([]);
@@ -79,10 +81,10 @@ export default function DraftPage() {
   }
 
   async function draftTeam(teamId: number) {
-    if (draftComplete) return;
+    if (draftComplete || !isAdmin) return;
     const resp = await fetch(`/api/tournament/${id}/draft`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-admin-key": adminKey },
       body: JSON.stringify({ teamId }),
     });
     const data = await resp.json();
@@ -94,9 +96,10 @@ export default function DraftPage() {
   }
 
   async function undoPick() {
-    if (pickCount === 0) return;
+    if (pickCount === 0 || !isAdmin) return;
     const resp = await fetch(`/api/tournament/${id}/draft`, {
       method: "DELETE",
+      headers: { "x-admin-key": adminKey },
     });
     const data = await resp.json();
     if (data.success) await loadData();
@@ -126,31 +129,32 @@ export default function DraftPage() {
     return board;
   }
 
-  if (loading) return <p className="text-slate-400 text-center">Loading...</p>;
+  if (loading) return <p className="text-white/40 text-center">Loading...</p>;
 
   const board = getDraftBoard();
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h1 className="text-2xl font-bold text-slate-800">Snake Draft</h1>
+        <h1 className="text-2xl font-bold text-white">Snake Draft</h1>
         <div className="flex gap-2">
-          <button
-            onClick={undoPick}
-            className="text-sm px-3 py-1 rounded-lg border border-amber-400 text-amber-600 hover:bg-amber-50/60 transition-colors"
-          >
-            Undo
-          </button>
+          {isAdmin && (
+            <button
+              onClick={undoPick}
+              className="text-sm px-3 py-1 rounded-lg border border-amber-400/50 text-amber-300 hover:bg-amber-400/10 transition-colors"
+            >
+              Undo
+            </button>
+          )}
           <Link
             href={`/tournament/${id}/dashboard`}
-            className="text-sm px-3 py-1 rounded-lg border border-indigo-400 text-indigo-600 hover:bg-indigo-50/60 transition-colors"
+            className="text-sm px-3 py-1 rounded-lg border border-indigo-400/50 text-indigo-300 hover:bg-indigo-400/10 transition-colors"
           >
             Dashboard
           </Link>
         </div>
       </div>
 
-      {/* Current drafter banner */}
       <div
         className="glass rounded-xl py-2 px-4 mb-4 text-center text-lg"
         style={{
@@ -158,9 +162,9 @@ export default function DraftPage() {
         }}
       >
         {draftComplete ? (
-          <span className="text-emerald-600 font-bold">Draft Complete!</span>
+          <span className="text-emerald-400 font-bold">Draft Complete!</span>
         ) : (
-          <span className="text-slate-700">
+          <span className="text-white/90">
             <strong>Pick #{pickCount + 1}</strong> &mdash;{" "}
             <span style={{ color: drafter?.color }} className="font-semibold">
               {drafter?.name}
@@ -171,32 +175,33 @@ export default function DraftPage() {
       </div>
 
       <div className="grid lg:grid-cols-5 gap-4">
-        {/* Available Teams (3 cols) */}
         <div className="lg:col-span-3 glass rounded-xl p-3">
-          <h2 className="font-semibold mb-2 text-slate-700">Available Teams</h2>
+          <h2 className="font-semibold mb-2 text-white/80">Available Teams</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {Object.entries(regionGroups).map(([region, rTeams]) => (
               <div key={region}>
-                <h3 className="text-xs font-bold text-slate-400 uppercase text-center mb-1">
+                <h3 className="text-xs font-bold text-white/40 uppercase text-center mb-1">
                   {region}
                 </h3>
                 {rTeams.map((t) => {
                   const drafted = t.owner_name !== null;
+                  const clickable = !drafted && isAdmin;
                   return (
                     <div
                       key={t.id}
                       className={`team-card ${drafted ? "drafted" : ""}`}
-                      style={
-                        drafted
+                      style={{
+                        ...(drafted
                           ? { borderLeftColor: t.owner_color ?? "#999" }
-                          : undefined
-                      }
-                      onClick={() => !drafted && draftTeam(t.id)}
+                          : {}),
+                        cursor: clickable ? "pointer" : "default",
+                      }}
+                      onClick={() => clickable && draftTeam(t.id)}
                     >
-                      <span className="w-6 h-6 rounded-full bg-white/60 flex items-center justify-center text-xs font-bold shrink-0 text-slate-700">
+                      <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold shrink-0 text-white/80">
                         {t.seed}
                       </span>
-                      <span className="truncate text-slate-700">{t.name}</span>
+                      <span className="truncate text-white/80">{t.name}</span>
                     </div>
                   );
                 })}
@@ -205,21 +210,20 @@ export default function DraftPage() {
           </div>
         </div>
 
-        {/* Draft Board + Pick Log (2 cols) */}
         <div className="lg:col-span-2 space-y-4">
           <div className="glass rounded-xl overflow-hidden">
-            <h2 className="font-semibold p-3 border-b border-white/30 text-slate-700">
+            <h2 className="font-semibold p-3 border-b border-white/10 text-white/80">
               Draft Board
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr>
-                    <th className="p-1 text-center text-slate-400">Rd</th>
+                    <th className="p-1 text-center text-white/40">Rd</th>
                     {participants.map((p) => (
                       <th
                         key={p.id}
-                        className="p-1 text-center text-slate-700"
+                        className="p-1 text-center text-white/80"
                         style={{ borderBottom: `3px solid ${p.color}` }}
                       >
                         {p.name}
@@ -230,13 +234,13 @@ export default function DraftPage() {
                 <tbody>
                   {board.map((row, ri) => (
                     <tr key={ri}>
-                      <td className="p-1 text-center text-slate-400">
+                      <td className="p-1 text-center text-white/40">
                         {ri + 1}
                       </td>
                       {row.map((cell, ci) => (
                         <td
                           key={ci}
-                          className="p-1 text-center text-slate-700"
+                          className="p-1 text-center text-white/80"
                           style={
                             cell
                               ? {
@@ -263,14 +267,14 @@ export default function DraftPage() {
           </div>
 
           <div className="glass rounded-xl overflow-hidden">
-            <h2 className="font-semibold p-3 border-b border-white/30 text-slate-700">
+            <h2 className="font-semibold p-3 border-b border-white/10 text-white/80">
               Pick Log
             </h2>
             <div className="p-2 max-h-72 overflow-y-auto">
               {[...picks].reverse().map((p) => (
                 <div
                   key={p.pick_number}
-                  className="py-1 px-2 border-b border-black/5 text-sm flex items-center gap-2"
+                  className="py-1 px-2 border-b border-white/5 text-sm flex items-center gap-2"
                 >
                   <span
                     className="text-xs px-1.5 py-0.5 rounded text-white font-medium"
@@ -281,12 +285,12 @@ export default function DraftPage() {
                   <strong style={{ color: p.participant_color }}>
                     {p.participant_name}
                   </strong>
-                  <span className="text-slate-400">&rarr;</span>
-                  <span className="text-slate-700">({p.seed}) {p.team_name}</span>
+                  <span className="text-white/40">&rarr;</span>
+                  <span className="text-white/80">({p.seed}) {p.team_name}</span>
                 </div>
               ))}
               {picks.length === 0 && (
-                <p className="text-slate-400 text-center text-sm">
+                <p className="text-white/40 text-center text-sm">
                   No picks yet
                 </p>
               )}

@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { advanceWinner, getTournament, getTeamsWithOwners } from "@/lib/db";
 import { fetchLatestResults } from "@/lib/espn";
 import { neon } from "@neondatabase/serverless";
+import { requireAdmin } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const denied = requireAdmin(req);
+  if (denied) return denied;
+
   const tournamentId = Number(params.id);
   const body = await req.json();
   const action: string = body.action;

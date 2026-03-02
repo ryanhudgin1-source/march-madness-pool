@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTournaments, createTournament } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -12,6 +13,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const { year, name, participants } = await req.json();
     const id = await createTournament(

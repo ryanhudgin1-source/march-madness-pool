@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
+import { AdminProvider } from "./admin-context";
+import NavBar from "./nav-bar";
 
 export const metadata: Metadata = {
   title: "March Madness Pool",
@@ -14,14 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gradient-app">
-        <nav id="app-nav" className="glass-strong sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="font-bold text-lg flex items-center gap-2 text-slate-800">
-            <span>&#127942;</span>
-            March Madness Pool
-          </Link>
-        </nav>
-        <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+      <body className="min-h-screen bg-hero-court">
+        <AdminProvider>
+          <NavBar />
+          <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
+        </AdminProvider>
       </body>
     </html>
   );

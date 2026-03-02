@@ -3,38 +3,52 @@
 @tailwind utilities;
 
 body {
-  color: #1e293b;
+  color: #e2e8f0;
   min-height: 100vh;
+  background: #111;
 }
 
-/* Gradient background for inner pages (draft, dashboard, setup, etc.) */
-.bg-gradient-app {
-  background: linear-gradient(135deg, #e2e8f0 0%, #f8fafc 25%, #e5e7eb 50%, #f1f5f9 75%, #d1d5db 100%);
-  background-attachment: fixed;
+/* Full-screen basketball hero background on every page */
+.bg-hero-court {
+  position: relative;
+}
+.bg-hero-court::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: url("https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1920&q=80") center/cover no-repeat;
+}
+.bg-hero-court::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.6) 100%);
 }
 
-/* Glass card utility */
+/* Glass card utility — dark-themed for basketball background */
 .glass {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
 .glass-subtle {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Glass on dark (for home page over photos) */
@@ -50,10 +64,10 @@ body {
 .team-card {
   @apply flex items-center gap-2 px-3 py-1.5 rounded-md border-l-4 border-transparent
          text-sm cursor-pointer transition-all duration-150;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
 }
 .team-card:hover:not(.drafted) {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.18);
   @apply translate-x-0.5;
 }
 .team-card.drafted {
@@ -63,20 +77,20 @@ body {
 /* Bracket */
 .bracket-game {
   @apply rounded-lg p-1 mb-1;
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .bracket-game.complete {
-  border-color: rgba(34, 197, 94, 0.5);
+  border-color: rgba(34, 197, 94, 0.4);
 }
 .bracket-team {
   @apply flex items-center gap-1.5 px-2 py-1 rounded text-sm transition-colors;
 }
 .bracket-team:hover:not(.tbd) {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
 }
 .bracket-team.winner {
-  background: rgba(34, 197, 94, 0.15);
+  background: rgba(34, 197, 94, 0.2);
 }
 .bracket-team.loser {
   @apply opacity-40 line-through;
@@ -88,14 +102,14 @@ body {
 /* Matchup cards */
 .matchup-card {
   @apply rounded-xl p-3 mb-2;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 .matchup-team-slot {
   @apply flex-1 flex items-center gap-2 px-3 py-2 rounded-lg;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Owner color stripe */
@@ -106,24 +120,24 @@ body {
 /* Team roster item */
 .roster-item {
   @apply flex justify-between items-center px-2 py-1.5 text-sm;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .roster-item.eliminated {
   @apply opacity-40 line-through;
 }
 
-/* Input styling for light theme */
+/* Input styling for dark theme */
 input, textarea, select {
-  background: rgba(255, 255, 255, 0.6) !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
-  color: #1e293b !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #e2e8f0 !important;
 }
 input:focus, textarea:focus, select:focus {
-  outline: 2px solid rgba(99, 102, 241, 0.4);
+  outline: 2px solid rgba(99, 102, 241, 0.5);
   outline-offset: 1px;
 }
 input::placeholder, textarea::placeholder {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 
 /* Button accents */
